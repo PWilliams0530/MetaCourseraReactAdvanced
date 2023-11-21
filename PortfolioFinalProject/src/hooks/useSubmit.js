@@ -22,11 +22,13 @@ const useSubmit = () => {
         type: 'success',
         message: `Thanks for your submission ${data.firstName}, we will get back to you shortly!`,
       })
+      return response;
     } catch (error) {
       setResponse({
         type: 'error',
         message: 'Something went wrong, please try again later!',
       })
+      return response;
     } finally {
       setLoading(false);
     }

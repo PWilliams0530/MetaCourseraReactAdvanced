@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import { useFormik } from "formik";
 import {
+  ChakraProvider,
   Box,
   Button,
   FormControl,
@@ -22,9 +23,28 @@ const LandingSection = () => {
   const { onOpen } = useAlertContext();
 
   const formik = useFormik({
-    initialValues: {},
-    onSubmit: (values) => {},
-    validationSchema: Yup.object({}),
+    initialValues: {
+      firstName: '',
+      email: '',
+      type: '',
+      comment: '',
+    },
+    validationSchema: Yup.object().shape({
+      firstName: Yup.string().required('First Name is required'),
+      email: Yup.string().required('Email is required'),
+      type: Yup.string().required('Type is required'),
+      comment: Yup.string().required('Comment is required'),
+    }),
+    onSubmit: async (values) => {
+      const response = await submit('',values);
+      if(response.type === 'success'){
+        onOpen("success",response.message);
+        formik.resetForm();
+      }
+      else{     
+        onOpen("failure",response.message);
+      }
+    },
   });
 
   return (
@@ -39,43 +59,47 @@ const LandingSection = () => {
           Contact me
         </Heading>
         <Box p={6} rounded="md" w="100%">
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4}>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.touched.firstName && formik.errors.firstName}>
                 <FormLabel htmlFor="firstName">Name</FormLabel>
                 <Input
                   id="firstName"
                   name="firstName"
+                  {...formik.getFieldProps('firstName')}
                 />
-                <FormErrorMessage></FormErrorMessage>
+                <FormErrorMessage>{formik.errors.firstName}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.touched.email && formik.errors.email}>
                 <FormLabel htmlFor="email">Email Address</FormLabel>
                 <Input
                   id="email"
                   name="email"
                   type="email"
+                  {...formik.getFieldProps('email')}
                 />
-                <FormErrorMessage></FormErrorMessage>
+                <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={formik.touched.type && formik.errors.type}>
                 <FormLabel htmlFor="type">Type of enquiry</FormLabel>
-                <Select id="type" name="type">
+                <Select id="type" name="type" {...formik.getFieldProps('type')}>
                   <option value="hireMe">Freelance project proposal</option>
                   <option value="openSource">
                     Open source consultancy session
                   </option>
                   <option value="other">Other</option>
                 </Select>
+                <FormErrorMessage>{formik.errors.type}</FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.touched.comment && formik.errors.comment}>
                 <FormLabel htmlFor="comment">Your message</FormLabel>
                 <Textarea
                   id="comment"
                   name="comment"
                   height={250}
+                  {...formik.getFieldProps('comment')}
                 />
-                <FormErrorMessage></FormErrorMessage>
+                <FormErrorMessage>{formik.errors.comment}</FormErrorMessage>
               </FormControl>
               <Button type="submit" colorScheme="purple" width="full">
                 Submit
